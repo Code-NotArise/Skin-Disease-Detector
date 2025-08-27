@@ -35,7 +35,6 @@ The application can detect the following skin diseases:
 - pip (Python package manager)
 - Virtual environment (recommended)
 
-<<<<<<< HEAD
 ### Installation Steps
 
 1. **Clone the Repository**
@@ -58,97 +57,36 @@ The application can detect the following skin diseases:
    pip install -r requirements.txt
    ```
 
-4. **Database Setup**
-   - Create a MySQL database named `skin_db`
-   - Update database credentials in `skindetector/settings.py` if needed:
-   ```python
-   DATABASES = {
-       'default': {
-           'ENGINE': 'django.db.backends.mysql',
-           'NAME': 'skin_db',
-           'USER': 'root',
-           'PASSWORD': 'your_password',
-           'HOST': 'localhost',
-           'PORT': '3306',
-       }
-   }
-   ```
-
-5. **Apply Migrations**
-=======
-### Cloning Repository
+4. **Environment Setup**
    ```bash
-   git clone https://github.com/arslan548/Skin_detector.git
-   cd Skin_detector
+   cp .env.example .env
+   # Edit .env file with your configuration:
+   # - Set your SECRET_KEY
+   # - Configure database credentials
+   # - Add your Roboflow API key
    ```
 
-### Database setup
-1. Go to the MySql site (https://dev.mysql.com/downloads/installer/) and download the installer. Make sure to download the full setup:
-![image](https://github.com/user-attachments/assets/8eb80d79-1f24-4be2-a2b3-ff51a2839cb6)
+5. **Database Setup**
+   - Create a MySQL database (default: `skin_db`)
+   - Update database credentials in `.env` file
 
-2. Then install the MySql
-
-3. You will create a username (By default its "root") and a password during installation make sure to remember that.
-
-4. After installation go to the folder "skindetector" in the repository you just cloned.
-
-5. Now open settings.py in it and go to line 94, 95 and enter you usernaame and password.
-
-6. Open terminal and give command:
-   ```bash
-   mysql -u root -p
-   ```
-   
-7. Enter your Mysql password.
-
-8. Now enter this:
-   ```MySql
-   CREATE DATABASE skin_db;
-   ```
-   
-9. Database setup complete.
-
-### Installation Steps
-1. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   .\venv\Scripts\activate  # On Windows: venv\Scripts\activate
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   
-3. Apply database migrations:
->>>>>>> 152d82eb01739cd35909ff407e8738c7c933e519
+6. **Apply Migrations**
    ```bash
    python manage.py migrate
    ```
 
-<<<<<<< HEAD
-6. **Create Superuser (Optional)**
-=======
-4. Create a superuser (optional, for admin access):
->>>>>>> 152d82eb01739cd35909ff407e8738c7c933e519
+7. **Create Superuser (Optional)**
    ```bash
    python manage.py createsuperuser
    ```
 
-<<<<<<< HEAD
-7. **Run Development Server**
-=======
-5. Run the development server:
->>>>>>> 152d82eb01739cd35909ff407e8738c7c933e519
+8. **Run Development Server**
    ```bash
    python manage.py runserver
    ```
 
-<<<<<<< HEAD
-8. **Access Application**
+9. **Access Application**
    Open your browser and navigate to: `http://127.0.0.1:8000/`
-=======
-6. Access the application at `http://127.0.0.1:8000/`
->>>>>>> 152d82eb01739cd35909ff407e8738c7c933e519
 
 ## 📖 Usage Guide
 
@@ -185,7 +123,7 @@ skin-disease-detector/
 │   ├── urls.py           # URL routing
 │   └── views.py          # Business logic
 │
-├── media/                  # User-uploaded files
+├── media/                  # User-uploaded files (excluded from git)
 │   ├── profile_pics/      # User profile pictures
 │   └── uploads/           # Skin images for prediction
 │
@@ -199,27 +137,36 @@ skin-disease-detector/
 ├── manage.py             # Django management script
 ├── requirements.txt      # Python dependencies
 ├── README.md            # This documentation
-├── roboflow_response.json    # Sample prediction response
-└── roboflow_first_prediction.json # Initial prediction sample
+├── .gitignore           # Git ignore rules
+├── .env.example         # Environment variables template
+└── LICENSE              # MIT License
 ```
 
-## 🔧 Technical Details
+## 🔧 Configuration
 
-### Models
-- **Profile**: Extends Django User model with profile picture support
-- **SkinImage**: Stores uploaded skin images with metadata
-- **SkinPrediction**: Records prediction results with confidence scores
+### Environment Variables
+Create a `.env` file based on `.env.example`:
 
-### API Integration
-- **Roboflow API**: Used for machine learning predictions
-- **API Key**: Configured in `detection/views.py` (replace with your own key)
-- **Model**: "poxclassification" version 1
+```bash
+# Django Settings
+SECRET_KEY=your-secret-key-here
+DEBUG=True
 
-### Security Features
-- Password hashing and validation
-- CSRF protection
-- User authentication requirements
-- Secure file upload handling
+# Database Configuration
+DB_NAME=skin_db
+DB_USER=root
+DB_PASSWORD=your-password
+DB_HOST=localhost
+DB_PORT=3306
+
+# Roboflow API
+ROBOFLOW_API_KEY=your-roboflow-api-key
+```
+
+### Database Setup
+1. Install MySQL and create a database
+2. Update the `.env` file with your database credentials
+3. Run migrations: `python manage.py migrate`
 
 ## 🧪 Testing
 
@@ -240,22 +187,22 @@ The application includes comprehensive disease information in `detection/disease
 
 1. **Medical Disclaimer**: This is a prototype application for educational purposes only. Always consult healthcare professionals for medical diagnoses.
 
-2. **API Key**: The current Roboflow API key is for demonstration. Replace it with your own key for production use.
+2. **API Key**: You need to obtain your own Roboflow API key for the application to work.
 
 3. **Database**: Requires MySQL. Ensure the database server is running before starting the application.
 
-4. **File Storage**: Media files are stored locally. Consider cloud storage for production deployments.
+4. **File Storage**: Media files are stored locally and excluded from git.
 
-5. **Security**: Change the SECRET_KEY in production and set DEBUG=False.
+5. **Security**: Uses environment variables for sensitive data. Never commit `.env` files to version control.
 
 ## 🚀 Deployment Considerations
 
 For production deployment:
-1. Set `DEBUG = False` in settings.py
+1. Set `DEBUG = False` in environment variables
 2. Use a proper web server (nginx + gunicorn)
 3. Configure a production database
 4. Set up proper static file serving
-5. Use environment variables for sensitive data
+5. Use environment variables for all sensitive data
 6. Implement SSL/TLS encryption
 7. Set up proper backup procedures
 
@@ -272,7 +219,6 @@ Contributions are welcome! Please:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-<<<<<<< HEAD
 ## 📞 Support
 
 For questions or issues:
@@ -284,17 +230,8 @@ For questions or issues:
 ---
 
 **Remember**: This application is a prototype designed for educational and demonstration purposes. It should not be used for actual medical diagnosis without proper validation and clinical oversight.
-=======
+
+### Made By Arslan Sajjad as a College Project.
+
 ## Contact
 For questions or support, please contact the project maintainer at: [arslansajjad548@gmail.com]
-
----
-
-# Additional Notes
-- The project uses Roboflow API for skin disease prediction.
-- Media files are stored in the `media/` directory.
-- User authentication is handled by Django's built-in auth system.
-### Made By Arslan Sajjad as a Collage Project. 
->>>>>>> 152d82eb01739cd35909ff407e8738c7c933e519
-#   S k i n D i s e a s e D e t e c t o r  
- 

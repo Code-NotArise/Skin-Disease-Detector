@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 # Django core imports
 from django.shortcuts import render, redirect, get_object_or_404
@@ -15,11 +16,22 @@ from .forms import (
 from .models import SkinPrediction
 from .disease_data import disease_details
 
+# Environment variables
+from decouple import config
+
 # Roboflow setup for AI model inference
 from roboflow import Roboflow
-rf = Roboflow(api_key="yBBBTl63T9D93vxmiWXs")
-project = rf.workspace().project("poxclassification")
-model = project.version(1).model
+
+# Get Roboflow API key from environment variables
+ROBOFLOW_API_KEY = config('ROBOFLOW_API_KEY', default='')
+
+# Initialize Roboflow only if API key is provided
+if ROBOFLOW_API_KEY:
+    rf = Roboflow(api_key=ROBOFLOW_API_KEY)
+    project = rf.workspace().project("poxclassification")
+    model = project.version(1).model
+else:
+    model = None
 
 # Logger setup
 logger = logging.getLogger(__name__)
@@ -87,39 +99,44 @@ def upload_image(request):
             skin_prediction.save()
 
             prediction = "Normal Skin / No Disease"
-            try:
-                # Perform prediction using Roboflow model
-                result = model.predict(skin_prediction.image.path).json()
-                logger.debug(f"Raw prediction result: {result}")
+            
+            if model is None:
+                prediction = "Roboflow API key not configured. Please set ROBOFLOW_API_KEY in your environment variables."
+                skin_prediction.confidence = 0
+            else:
+                try:
+                    # Perform prediction using Roboflow model
+                    result = model.predict(skin_prediction.image.path).json()
+                    logger.debug(f"Raw prediction result: {result}")
 
-                preds_list = result.get('predictions', [])
-                if preds_list and isinstance(preds_list, list) and len(preds_list) > 0:
-                    preds_dict = preds_list[0].get('predictions', {})
-                    if preds_dict and isinstance(preds_dict, dict):
-                        # Select prediction with highest confidence
-                        predicted_class, pred_data = max(
-                            preds_dict.items(), key=lambda item: item[1].get('confidence', 0)
-                        )
-                        confidence = float(pred_data.get('confidence', 0))
-                        confidence_percent = confidence * 100
+                    preds_list = result.get('predictions', [])
+                    if preds_list and isinstance(preds_list, list) and len(preds_list) > 0:
+                        preds_dict = preds_list[0].get('predictions', {})
+                        if preds_dict and isinstance(preds_dict, dict):
+                            # Select prediction with highest confidence
+                            predicted_class, pred_data = max(
+                                preds_dict.items(), key=lambda item: item[1].get('confidence', 0)
+                            )
+                            confidence = float(pred_data.get('confidence', 0))
+                            confidence_percent = confidence * 100
 
-                        # Handle Normal vs. Diseased prediction differently
-                        if predicted_class.lower() in ['normal skin / no disease', 'healthy']:
-                            prediction = f"{predicted_class}"
-                            skin_prediction.confidence = confidence_percent
+                            # Handle Normal vs. Diseased prediction differently
+                            if predicted_class.lower() in ['normal skin / no disease', 'healthy']:
+                                prediction = f"{predicted_class}"
+                                skin_prediction.confidence = confidence_percent
+                            else:
+                                prediction = f"{predicted_class} (Confidence: {confidence_percent:.0f}%)"
+                                skin_prediction.confidence = confidence_percent
                         else:
-                            prediction = f"{predicted_class} (Confidence: {confidence_percent:.0f}%)"
-                            skin_prediction.confidence = confidence_percent
+                            prediction = "Normal Skin / No Disease"
+                            skin_prediction.confidence = 0
                     else:
                         prediction = "Normal Skin / No Disease"
                         skin_prediction.confidence = 0
-                else:
-                    prediction = "Normal Skin / No Disease"
-                    skin_prediction.confidence = 0
 
-            except Exception as e:
-                prediction = f"Error: {str(e)}"
-                logger.error(f"Prediction error: {str(e)}")
+                except Exception as e:
+                    prediction = f"Error: {str(e)}"
+                    logger.error(f"Prediction error: {str(e)}")
 
             # Save prediction in the database
             skin_prediction.prediction = prediction

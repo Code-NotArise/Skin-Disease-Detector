@@ -1,5 +1,6 @@
 from pathlib import Path
 from django.conf import settings
+from decouple import config, Csv
 
 # ---------------------------------------------------
 # Base directory of the Django project
@@ -11,14 +12,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ---------------------------------------------------
 
 # Secret key for cryptographic signing (keep it secret in production!)
-SECRET_KEY = 'django-insecure-d+$y5#fuf*nf_(q81yne(1&@7o3!#011-ro*vw38_)#rcpn(l8'
+SECRET_KEY = config('SECRET_KEY')
 
 # Turn off DEBUG in production to avoid showing sensitive info
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Hosts/domain names that are valid for this site
 # Use specific domain names or IPs in production instead of '*'
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
 # ---------------------------------------------------
 # MEDIA FILES CONFIGURATION (For user uploads)
@@ -90,11 +91,11 @@ WSGI_APPLICATION = 'skindetector.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # Database backend
-        'NAME': 'skin_db',                     # Database name
-        'USER': 'root',                        # MySQL user
-        'PASSWORD': '',            # MySQL password
-        'HOST': 'localhost',                   # Database host
-        'PORT': '3306',                        # Default MySQL port
+        'NAME': config('DB_NAME', default='skin_db'),                     # Database name
+        'USER': config('DB_USER', default='root'),                        # MySQL user
+        'PASSWORD': config('DB_PASSWORD', default=''),            # MySQL password
+        'HOST': config('DB_HOST', default='localhost'),                   # Database host
+        'PORT': config('DB_PORT', default='3306'),                        # Default MySQL port
     }
 }
 
