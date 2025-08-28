@@ -71,7 +71,7 @@ The application can detect the following skin diseases:
    ```bash
    CREATE DATABASE skin_db;
    ```
-   - Update database credentials in `.env` file
+   - Update database credentials in `skindetector/settings.py` file
 
 6. **Apply Migrations**
    ```bash
