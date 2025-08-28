@@ -68,6 +68,9 @@ The application can detect the following skin diseases:
 
 5. **Database Setup**
    - Create a MySQL database (default: `skin_db`)
+   ```bash
+   CREATE DATABASE skin_db;
+   ```
    - Update database credentials in `.env` file
 
 6. **Apply Migrations**
